@@ -7,11 +7,13 @@
 #include <utility>
 #include <vector>
 #include <type_traits>
+#include <numeric>
 
 using namespace std;
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
+const double CONSTANTA = 1e-6;
 string ReadLine()
 {
     string s;
@@ -101,16 +103,16 @@ public:
     {
         const Query query = ParseQuery(raw_query);
         auto matched_documents = FindAllDocuments(query, document_predicat);
-
-        sort(matched_documents.begin(), matched_documents.end(), [](const Document& s1, const Document& s2)
+        
+        sort(matched_documents.begin(), matched_documents.end(), [](const Document& lhs, const Document& rhs)
             {
-                if (abs(s1.relevance - s2.relevance) < 1e-6)
+                if (abs(lhs.relevance - rhs.relevance) < CONSTANTA)
                 {
-                    return s1.rating > s2.rating;
+                    return lhs.rating > rhs.rating;
                 }
                 else
                 {
-                    return s1.relevance > s2.relevance;
+                    return lhs.relevance > rhs.relevance;
                 }
             });
         if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT)
@@ -129,12 +131,8 @@ public:
             });
     }
 
-    vector<Document> FindTopDocuments(const string& raw_query) const
-    {
-        return FindTopDocuments(raw_query, [](int document_id, DocumentStatus status, int rating)
-            {
-                return status == DocumentStatus::ACTUAL;
-            });
+    vector<Document> FindTopDocuments(const string& raw_query) const {
+        return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
     }
 
     int GetDocumentCount() const
@@ -210,11 +208,7 @@ private:
         {
             return 0;
         }
-        int rating_sum = 0;
-        for (const int rating : ratings)
-        {
-            rating_sum += rating;
-        }
+        int rating_sum = accumulate(ratings.begin(), ratings.end(), 0);
 
         return rating_sum / static_cast<int>(ratings.size());
     }
