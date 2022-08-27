@@ -91,7 +91,9 @@ void TestMinusWord()
         server.AddDocument(doc_id, content1, DocumentStatus::ACTUAL, ratings);
         server.AddDocument(doc_id + 1, content2, DocumentStatus::ACTUAL, ratings);
         const auto res = server.FindTopDocuments("in -the city"s);
+        const Document& doc0 = res[0];
         ASSERT_EQUAL(res.size(), 1);
+        ASSERT_EQUAL(doc0.id, doc_id + 1);
     }
 }
 
@@ -105,16 +107,21 @@ void TestRel()
     const string content_2 = "big yellow wolf "s;
     const vector<int> ratings_2 = { 4, 5, 6 };
 
+    const int doc_id_3 = 26;
+    const string content_3 = "rabbit on small house "s;
+    const vector<int> ratings_3 = { 7, 8, 9 };
+
     {
         SearchServer server;
         server.AddDocument(doc_id_1, content_1, DocumentStatus::ACTUAL, ratings_1);
         server.AddDocument(doc_id_2, content_2, DocumentStatus::ACTUAL, ratings_2);
-        const auto res = server.FindTopDocuments("cat wolf"s);
-        ASSERT_EQUAL(res.size(), 2);
-        for (int i = 1; i < (res.size()); ++i)
+        server.AddDocument(doc_id_3, content_3, DocumentStatus::ACTUAL, ratings_3);
+        const auto res = server.FindTopDocuments("cat wolf on "s);
+        vector<int> order{ 25,26,42 };
+        ASSERT_EQUAL(res.size(), 3);
+        for (size_t i = 0; i < res.size(); ++i)
         {
-            double tmp = res[i - 1].relevance;
-            ASSERT((res[i].relevance < tmp));
+            ASSERT_EQUAL(order[i], res[i].id);
         }
     }
 }
@@ -129,7 +136,7 @@ void TestRating()
         SearchServer server;
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
         const auto res = server.FindTopDocuments("city cat"s);
-        ASSERT_EQUAL(res[0].rating, 2);
+        ASSERT_EQUAL(res[0].rating, round((1 + 2 + 3) / 3));
     }
 }
 
@@ -167,28 +174,48 @@ void TestReleCalc()
 
 void TestStatus()
 {
-    const int doc_id = 42;
-    const string content = "cat in the city"s;
-    const vector<int> ratings = { 1, 2, 3 };
+    const int doc_id_1 = 42;
+    const string content_1 = "cat in the city"s;
+    const vector<int> ratings_1 = { 1, 2, 3 };
+
+    const int doc_id_2 = 25;
+    const string content_2 = "big yellow wolf "s;
+    const vector<int> ratings_2 = { 4, 5, 6 };
+
+    const int doc_id_3 = 26;
+    const string content_3 = "rabbit on small house "s;
+    const vector<int> ratings_3 = { 7, 8, 9 };
 
     SearchServer server;
-    server.AddDocument(doc_id, content, DocumentStatus::BANNED, ratings);
-    const auto res = server.FindTopDocuments("cat", DocumentStatus::BANNED);
+    server.AddDocument(doc_id_1, content_1, DocumentStatus::BANNED, ratings_1);
+    server.AddDocument(doc_id_2, content_2, DocumentStatus::REMOVED, ratings_2);
+    server.AddDocument(doc_id_3, content_3, DocumentStatus::ACTUAL, ratings_3);
+    const auto res = server.FindTopDocuments("cat wolf rabbit", DocumentStatus::ACTUAL);
     ASSERT_EQUAL(res.size(), 1);
-    ASSERT_EQUAL(res[0].id, doc_id);
+    ASSERT_EQUAL(res[0].id, doc_id_3);
 }
 
 void TestPred()
 {
-    const int doc_id = 42;
-    const string content = "cat in the city"s;
-    const vector<int> ratings = { 1, 2, 3 };
+    const int doc_id_1 = 42;
+    const string content_1 = "cat in the city"s;
+    const vector<int> ratings_1 = { 1, 2, 3 };
+
+    const int doc_id_2 = 25;
+    const string content_2 = "big yellow wolf "s;
+    const vector<int> ratings_2 = { 4, 5, 6 };
+
+    const int doc_id_3 = 26;
+    const string content_3 = "rabbit on small house "s;
+    const vector<int> ratings_3 = { 7, 8, 9 };
 
     SearchServer server;
-    server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
+    server.AddDocument(doc_id_1, content_1, DocumentStatus::ACTUAL, ratings_1);
+    server.AddDocument(doc_id_2, content_2, DocumentStatus::REMOVED, ratings_2);
+    server.AddDocument(doc_id_3, content_3, DocumentStatus::BANNED, ratings_3);
     const auto res = server.FindTopDocuments("cat"s, [](int document_id, DocumentStatus, int) {return document_id % 2 == 0; });
     ASSERT_EQUAL(res.size(), 1);
-    ASSERT_EQUAL(res[0].id, doc_id);
+    ASSERT_EQUAL(res[0].id, doc_id_1);
 }
 
 /*
