@@ -96,7 +96,6 @@ public:
     }
 
     void AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
-
         if (documents_.count(document_id))
         {
             throw invalid_argument("invalid document id");
@@ -109,10 +108,6 @@ public:
 
         const vector<string> words = SplitIntoWordsNoStop(document);
         const double inv_word_count = 1.0 / words.size();
-        if (!IsValidWord(document))
-        {
-            throw invalid_argument("invalid document");
-        }
         for (const string& word : words) {
             word_to_document_freqs_[word][document_id] += inv_word_count;
         }
@@ -215,6 +210,9 @@ private:
     vector<string> SplitIntoWordsNoStop(const string& text) const {
         vector<string> words;
         for (const string& word : SplitIntoWords(text)) {
+            if (!IsValidWord(word)) {
+                throw invalid_argument("invalid document id");
+            }
             if (!IsStopWord(word)) {
                 words.push_back(word);
             }
