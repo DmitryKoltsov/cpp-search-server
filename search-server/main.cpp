@@ -87,10 +87,6 @@ public:
     explicit SearchServer(const string& stop_words_text)
         : SearchServer(SplitIntoWords(stop_words_text))  // Invoke delegating constructor from string container
     {
-        if (!IsValidWord(stop_words_text))
-        {
-            throw invalid_argument("invalid stop word");
-        }
     }
 
     void SetStopWords(const string& text) {
@@ -101,18 +97,22 @@ public:
 
     void AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
 
-        if (!IsValidWord(document))
+        if (documents_.count(document_id))
         {
-            throw invalid_argument("invalid document");
+            throw invalid_argument("invalid document id");
         }
 
-        if (documents_.count(document_id) || document_id < 0)
+        if (document_id < 0)
         {
             throw invalid_argument("invalid document id");
         }
 
         const vector<string> words = SplitIntoWordsNoStop(document);
         const double inv_word_count = 1.0 / words.size();
+        if (!IsValidWord(document))
+        {
+            throw invalid_argument("invalid document");
+        }
         for (const string& word : words) {
             word_to_document_freqs_[word][document_id] += inv_word_count;
         }
