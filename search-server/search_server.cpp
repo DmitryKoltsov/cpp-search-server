@@ -121,7 +121,10 @@ SearchServer::Query SearchServer::ParseQuery(const string& text) const {
             if (query_word.is_minus) {
                 result.minus_words.insert(query_word.data);
             }
-            result.plus_words.insert(query_word.data);
+            else 
+            {
+                result.plus_words.insert(query_word.data);
+            }
         }
     }
     return result;
