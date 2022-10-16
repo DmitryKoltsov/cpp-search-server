@@ -1,7 +1,9 @@
 #pragma once
+
 #include <vector>
 #include <stack>
 #include <string>
+
 #include "search_server.h"
 #include "document.h"
 
