@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <ostream>
+#include <cassert>
 
 template <typename Iterator>
 class IteratorRange {
@@ -33,7 +34,9 @@ private:
 template <typename Iterator>
 class Paginator {
 public:
-    Paginator(Iterator begin, Iterator end, int size) {
+    Paginator(Iterator begin, Iterator end, int size) 
+    {
+        assert(end >= begin && size > 0);
         for (int left = distance(begin, end); left > 0;) {
             const size_t current_page_size = std::min(size, left);
             const Iterator current_page_end = next(begin, current_page_size);

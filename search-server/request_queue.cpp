@@ -4,8 +4,7 @@ using namespace std;
 
 RequestQueue::RequestQueue(const SearchServer& search_server)
     :search_server_(search_server)
-    {
-    }
+{}
 
 vector<Document> RequestQueue::AddFindRequest(const string& raw_query, DocumentStatus status)
 {
@@ -19,10 +18,10 @@ vector<Document> RequestQueue::AddFindRequest(const string& raw_query)
     return AddFindRequest(raw_query, DocumentStatus::ACTUAL);
 }
 
-int RequestQueue::GetNoResultRequests() const 
-    {
-        return no_res_req_;
-    }
+int RequestQueue::GetNoResultRequests() const
+{
+    return no_res_req_;
+}
 
 void RequestQueue::UpdateSize() {
 	while (requests_.size() > min_in_day_) {

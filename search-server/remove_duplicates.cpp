@@ -15,14 +15,14 @@ void RemoveDuplicates(SearchServer & search_server)
             word_in_document.insert(word);
         }
         
-    if(document.find(word_in_document) == document.end())
-       {
-        document.insert(word_in_document);
-       }
-       else
-       {
-        deleted_document.push_back(document_id);
-       }
+        if(document.find(word_in_document) == document.end())
+        {
+            document.insert(word_in_document);
+        }
+        else
+        {
+            deleted_document.push_back(document_id);
+        }
     }
    for (int i : deleted_document) 
    {
