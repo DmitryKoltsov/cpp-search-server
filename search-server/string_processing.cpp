@@ -1,23 +1,20 @@
-#include "string_processing.h"
+#include"string_processing.h"
 
 using namespace std;
 
-vector<string> SplitIntoWords(const string& text) {
-    vector<string> words;
+vector<string_view> SplitIntoWords(string_view text)
+{
+
+    vector<string_view> words;
     string word;
-    for (const char c : text) {
-        if (c == ' ') {
-            if (!word.empty()) {
-                words.push_back(word);
-                word.clear();
-            }
-        }
-        else {
-            word += c;
-        }
+    auto pos = text.find(' ');
+    size_t first = 0;
+    while (pos != text.npos)
+    {
+        words.push_back(text.substr(first, pos - first));
+        first = pos + 1;
+        pos = text.find(' ', first);
     }
-    if (!word.empty()) {
-        words.push_back(word);
-    }
+    words.push_back(text.substr(first, pos - first));
     return words;
 }
